@@ -8,6 +8,7 @@ fn main() {
 struct State {
     current_number: i32,
     range: i32,
+    counter: i32,
 }
 
 impl State {
@@ -15,14 +16,23 @@ impl State {
         Self {
             current_number: 50,
             range: 100,
+            counter: 0,
         }
     }
 
     fn turn_left(&mut self, increment: i32) {
+        let remainder = increment.rem_euclid(100);
+        if self.current_number != 0 && self.current_number <= remainder {
+            self.counter += 1;
+        }
         self.current_number = (self.current_number - increment).rem_euclid(self.range);
     }
 
     fn turn_right(&mut self, increment: i32) {
+        let remainder = increment.rem_euclid(100);
+        if self.current_number + remainder > 99 {
+            self.counter += 1;
+        }
         self.current_number = (self.current_number + increment) % self.range;
     }
 }
@@ -43,35 +53,26 @@ fn parse(instruction: &str) -> Rotation {
     }
 }
 
-fn part2(input: &str) -> u32 {
-    let mut counter = 0;
+fn part2(input: &str) -> i32 {
     let mut state = State::new();
     let instructions = input.lines().map(parse).collect::<Vec<Rotation>>();
     for instruction in instructions {
         println!("State currently at {}", state.current_number);
         match instruction {
             Rotation::Left(increment) => {
-                let old_value = state.current_number;
                 println!("Moving {increment} steps to the left!");
                 state.turn_left(increment);
-                if old_value <= increment {
-                    println!("INCREMENT");
-                    counter += 1;
-                }
+                state.counter += increment / 100;
             }
             Rotation::Right(increment) => {
-                let old_value = state.current_number;
                 println!("Moving {increment} steps to the right!");
                 state.turn_right(increment);
-                if old_value + increment >= state.range {
-                    println!("INCREMENT");
-                    counter += 1;
-                }
+                state.counter += increment / 100;
             }
         }
     }
 
-    counter
+    state.counter
 }
 
 #[cfg(test)]
