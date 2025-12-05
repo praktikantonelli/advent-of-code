@@ -38,6 +38,9 @@ impl Grid {
                 let row_max = (row + 1).min(n_rows - 1);
                 let col_min = column.saturating_sub(1);
                 let col_max = (column + 1).min(n_columns - 1);
+                println!(
+                    "(row, col) = ({row}, {column}), (row_min, row_max) = ({row_min}, {row_max}), (col_min, col_max) = ({col_min}, {col_max})"
+                );
                 for i in row_min..=row_max {
                     for j in col_min..=col_max {
                         if i != row && j != column && characters[i][j] == '@' {
