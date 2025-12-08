@@ -12,6 +12,7 @@ struct Grid {
     accessible_toiletpaper: Vec<Vec<u32>>,
     n_rows: usize,
     n_columns: usize,
+    n_accessible_rolls: u32,
 }
 
 impl Grid {
@@ -38,13 +39,10 @@ impl Grid {
                 let row_max = (row + 1).min(n_rows - 1);
                 let col_min = column.saturating_sub(1);
                 let col_max = (column + 1).min(n_columns - 1);
-                println!(
-                    "(row, col) = ({row}, {column}), (row_min, row_max) = ({row_min}, {row_max}), (col_min, col_max) = ({col_min}, {col_max})"
-                );
                 for i in row_min..=row_max {
                     for j in col_min..=col_max {
-                        if i != row && j != column && characters[i][j] == '@' {
-                            neighbor_count[i][j] += 1;
+                        if (i != row || j != column) && characters[i][j] == '@' {
+                            neighbor_count[row][column] += 1;
                         }
                     }
                 }
@@ -59,12 +57,19 @@ impl Grid {
             }
         }
 
+        let n_accessible_rolls = accessible_toiletpaper
+            .iter()
+            .map(|e| e.iter().sum())
+            .reduce(|acc, e| acc + e)
+            .unwrap();
+
         Self {
             characters,
             neighbor_count,
             accessible_toiletpaper,
             n_rows,
             n_columns,
+            n_accessible_rolls,
         }
     }
 }
@@ -101,9 +106,8 @@ impl fmt::Display for Grid {
 
 fn part1(input: &str) -> u32 {
     let grid = Grid::new(input);
-    println!("{grid}");
 
-    0
+    grid.n_accessible_rolls
 }
 
 #[cfg(test)]
