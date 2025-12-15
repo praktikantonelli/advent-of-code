@@ -1,3 +1,4 @@
+use core::num;
 use regex::Regex;
 use std::collections::HashSet;
 
@@ -9,7 +10,7 @@ fn main() {
     println!("{output}");
 }
 
-fn part1(input: &str) -> usize {
+fn part1(input: &str) -> u32 {
     let re = Regex::new(r"\r?\n\r?\n").unwrap();
     let (ranges, ingredients) = re.split(input).collect_tuple().unwrap();
     let ranges = ranges
@@ -18,24 +19,29 @@ fn part1(input: &str) -> usize {
             let (min, max) = x.split("-").collect_tuple().unwrap();
             let min: u64 = min.trim().parse().unwrap();
             let max: u64 = max.trim().parse().unwrap();
-            (min..=max).collect()
+            (min, max)
         })
-        .collect::<Vec<Vec<u64>>>()
-        .iter()
-        .flatten()
-        .map(|x| x.to_owned())
-        .collect::<Vec<u64>>();
+        .collect::<Vec<(u64, u64)>>();
 
     println!("Ranges collected");
-    let fresh_id_set: HashSet<u64> = ranges.into_iter().collect();
     println!("Fresh IDs collected");
 
     let ingredients = ingredients
         .split("\n")
-        .map(|x| x.parse::<u64>().unwrap())
-        .collect::<HashSet<u64>>();
+        .map(|x| x.trim().parse::<u64>())
+        .filter_map(Result::ok)
+        .collect::<Vec<u64>>();
     println!("Ingredients collected");
-    fresh_id_set.intersection(&ingredients).count()
+    let mut num_fresh_ingredients: u32 = 0;
+    for ingredient in ingredients {
+        for (min, max) in ranges.clone() {
+            if ingredient >= min && ingredient <= max {
+                num_fresh_ingredients += 1;
+                break;
+            }
+        }
+    }
+    num_fresh_ingredients
 }
 
 #[cfg(test)]
