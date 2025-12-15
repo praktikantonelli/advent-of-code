@@ -1,6 +1,4 @@
-use core::num;
 use regex::Regex;
-use std::collections::HashSet;
 
 use itertools::{self, Itertools};
 
