@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, vec};
 fn main() {
     let input = include_str!("../../../../advent-of-code-input/2025/day-04.txt");
     let output = part2(input);
@@ -51,10 +51,12 @@ impl Grid {
         }
         self.n_accessible_rolls += n_removed_rolls;
         println!("Removed {n_removed_rolls} rolls");
+        self.accessible_toiletpaper = vec![vec![0; self.n_columns]; self.n_rows];
         n_removed_rolls // once this reaches zero, stop calling this method
     }
 
     fn compute_neighbor_count(&mut self) {
+        self.neighbor_count = vec![vec![0; self.n_columns]; self.n_rows];
         for row in 0..self.n_rows {
             for column in 0..self.n_columns {
                 let character = self.characters[row][column];
@@ -113,20 +115,13 @@ impl fmt::Display for Grid {
 
 fn part2(input: &str) -> u32 {
     let mut grid = Grid::new(input);
-    println!("{grid}");
     grid.compute_neighbor_count();
     grid.find_accessible_toiletpaper();
     let mut val = grid.remove_accessible_rolls();
-    grid.compute_neighbor_count();
-    grid.find_accessible_toiletpaper();
     while val != 0 {
-        println!(
-            "==========================================================================================================================================="
-        );
-        val = grid.remove_accessible_rolls();
         grid.compute_neighbor_count();
         grid.find_accessible_toiletpaper();
-        println!("{grid}");
+        val = grid.remove_accessible_rolls();
     }
 
     grid.n_accessible_rolls
