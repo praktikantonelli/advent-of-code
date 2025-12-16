@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use regex::Regex;
 
 use itertools::{self, Itertools};
@@ -8,7 +10,7 @@ fn main() {
     println!("{output}");
 }
 
-fn part2(input: &str) -> usize {
+fn part2(input: &str) -> u64 {
     let mut counter = 0;
     let re = Regex::new(r"\r?\n\r?\n").unwrap();
     let (ranges, _ingredients) = re.split(input).collect_tuple().unwrap();
@@ -20,17 +22,33 @@ fn part2(input: &str) -> usize {
             let (min, max) = x.split("-").collect_tuple().unwrap();
             let min: u64 = min.trim().parse().unwrap();
             let max: u64 = max.trim().parse().unwrap();
-            (min..=max).collect()
+            (min, max)
         })
-        .collect::<Vec<Vec<u64>>>()
-        .iter()
-        .flatten()
-        .map(|x| x.to_owned())
-        .collect::<Vec<u64>>();
+        .collect::<Vec<(u64, u64)>>();
 
+    // Sort by min => overlapping ranges are always next to each other
     ranges.sort_unstable();
-    ranges.dedup();
-    ranges.len()
+
+    // Iterate over (min, max) tuples, figure out if current and next range are
+    // overlapping/adjacent or completely disjoint
+    let mut num_unique_values: u64 = 0;
+    let mut current_min = ranges[0].0;
+    let mut current_max = ranges[0].1;
+    for &(min_val, max_val) in &ranges[1..] {
+        if min_val <= current_max + 1 {
+            // Overlapping or adjacent
+            current_max = max(current_max, max_val);
+        } else {
+            // Disjoint => Count values in range and move current min/max to iterator
+            num_unique_values += current_max - current_min + 1;
+            current_min = min_val;
+            current_max = max_val;
+        }
+    }
+
+    // End of loop: Handle last range
+    num_unique_values += current_max - current_min + 1;
+    num_unique_values
 }
 
 #[cfg(test)]
