@@ -1,10 +1,10 @@
 fn main() {
     let input = include_str!("../../../../advent-of-code-input/2025/day-06.txt");
-    let output = part1(input);
+    let output = part2(input);
     println!("{output}");
 }
 
-fn part1(input: &str) -> u64 {
+fn part2(input: &str) -> u64 {
     // parse &str into Vec<Vec<&str>> <=> each inner Vec<&str> is a row
     let rows = input
         .lines()
@@ -71,7 +71,7 @@ mod test {
  45 64  387 23 
   6 98  215 314
 *   +   *   +  ";
-        let output = part1(input);
+        let output = part2(input);
         assert_eq!(output, 4277556);
     }
 }
